@@ -30,7 +30,7 @@ for idx, row in enumerate(reader):
     # row is a list of strings
     file_path = row[0].replace('\'', '')
     #print 'path : ',file_path
-    if (idx==0 or ('Tests/' not in file_path and (file_path.endswith('.php') or file_path.endswith('.js') or file_path.endswith('.html') or file_path.endswith('.css') or file_path.endswith('.xml')))):
+    if (idx==0 or ('test/' not in file_path.lower() and 'tests/' not in file_path.lower() and (file_path.endswith('.php') or file_path.endswith('.js') or file_path.endswith('.html') or file_path.endswith('.css') or file_path.endswith('.xml')))):
         found = check_map(file_path)
         class_idx = len(row)-1
         print str(i)+" "+str(len(row))+" "+file_path+" "+row[class_idx]+" "+str(found)+" "+str(file_path.__len__())

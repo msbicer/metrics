@@ -13,12 +13,6 @@ def check_path_valid(file_path):
 		return False
 
 def extract_metrics(matrix):
-	global base_dir
-	global topCommitters
-	global lastCommitTime
-	global MONTH
-	global totalCommits
-	global committers
 
 	nrCommits = 0
 	nrCommitters = 0
