@@ -2,15 +2,10 @@ import fnmatch
 import os
 import csv
 import sys
+import common
 
 project_name = sys.argv[1]
 base_dir = sys.argv[2]
-
-def check_path_valid(file_path):
-	if (('Tests/' not in file_path) and (file_path.endswith('.php') or file_path.endswith('.js') or file_path.endswith('.html') or file_path.endswith('.css') or file_path.endswith('.xml'))):
-		return True
-	else:
-		return False
 
 def extract_metrics(matrix):
 
@@ -74,7 +69,7 @@ files = []
 for root, dirnames, filenames in os.walk(base_dir):
 	for file_path in filenames:
 		full_path = os.path.join(root, file_path)
-		if check_path_valid(full_path):
+		if common.check_path_valid(full_path):
 			files.append(full_path)
 
 changes = {}
@@ -108,7 +103,7 @@ for idx, row in enumerate(reader):
 			committers[author] = committers[author]+1
 		else:
 			committers[author] = 1
-		if check_path_valid(file_path):
+		if common.check_path_valid(file_path):
 			totalCommits+=1
 			matrix = []
 			if file_path in changes:

@@ -2,6 +2,7 @@ import csv
 import sys
 
 project_name = sys.argv[1]
+metric_type = sys.argv[2]
 
 def check_map(name):
     name = name.replace('\\','/')
@@ -20,9 +21,9 @@ with open(project_name+"-modified.txt") as f:
 
 #print d
 
-ifile  = open(project_name+'-churn.csv', "rb")
+ifile  = open(project_name+'-'+metric_type+'.csv', "rb")
 reader = csv.reader(ifile)
-ofile  = open(project_name+'-churn-labeled.csv', "wb")
+ofile  = open(project_name+'-'+metric_type+'-labeled.csv', "wb")
 writer = csv.writer(ofile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
 i = 0
