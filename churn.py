@@ -91,11 +91,12 @@ writer = csv.writer(ofile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNU
 
 #Id,Change_Date,Committer,File_Name,Lines_Added,Lines_Removed
 for idx, row in enumerate(reader):
+	print row
 	if idx>0:
 		date = int(row[1])
 		author = row[2]
 		file_path = base_dir+row[3]
-		#print 'enumerate ',file_path
+		print 'enumerate ',file_path
 		lines_added = int(row[4])
 		lines_removed = int(row[5])
 		lastCommitTime = max(lastCommitTime, date)
@@ -118,8 +119,8 @@ for item in topCommitters:
 
 writer.writerow(['File_Name','Commit_Count','Committer_Count','Lines_Added','Lines_Removed','Last_Commit_Count','Last_Commiter_Count','Last_Lines_Added','Last_Lines_Removed','Gini_Coefficient','Top_Committer_Percent','Defected'])
 for name in files:
+	#print name+" "+str(changes[name])
 	if name in changes:
-		#print name+" "+str(changes[name])
 		metrics = extract_metrics(changes[name])
 		metrics.insert(0, name)
 		metrics.append('No')

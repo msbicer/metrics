@@ -1,5 +1,6 @@
 import csv
 import sys
+import common
 
 project_name = sys.argv[1]
 metric_type = sys.argv[2]
@@ -8,7 +9,9 @@ def check_map(name):
     name = name.replace('\\','/')
     global defected
     for key in defected:
+        #print 'check_map ',key,' ==> ',name
         if key in name:
+            
             return True
     return False
 
@@ -16,7 +19,7 @@ defected = {}
 
 with open(project_name+"-modified.txt") as f:
     for line in f:
-       print line.strip()
+       #print line.strip()
        defected[line.strip()] = 1
 
 #print d
@@ -30,8 +33,9 @@ i = 0
 for idx, row in enumerate(reader):
     # row is a list of strings
     file_path = row[0].replace('\'', '')
+    #print 'row',row,' ==> ',file_path
     #print 'path : ',file_path
-    if (idx==0 or ('test/' not in file_path.lower() and 'tests/' not in file_path.lower() and (file_path.endswith('.php') or file_path.endswith('.js') or file_path.endswith('.html') or file_path.endswith('.css') or file_path.endswith('.xml')))):
+    if (idx==0 or common.check_path_valid(file_path)):
         found = check_map(file_path)
         class_idx = len(row)-1
         print str(i)+" "+str(len(row))+" "+file_path+" "+row[class_idx]+" "+str(found)+" "+str(file_path.__len__())
