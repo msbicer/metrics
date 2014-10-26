@@ -2,16 +2,65 @@
 import sys
 import xml.etree.ElementTree as ET
 
+def count_cookie_access(root):
+	global ns_node,ns_subnode,ns_scalar
+	total = 0
+
+	query = './/{0}Expr_Variable/{1}name'.format(ns_node, ns_subnode)
+	total += count_param_occurrence(root.findall(query), "_COOKIE")
+
+	return total
+
+def count_db_query(root):
+	global ns_node,ns_subnode,ns_scalar
+	total = 0
+
+	# query = './/{0}Expr_FuncCall/{1}name//{1}parts'.format(ns_node, ns_subnode)
+	# total += count_param_occurrence(root.findall(query),"PMA_DBI_try_query")
+
+	query = './/{0}string'.format(ns_scalar);
+	for e in root.findall(query):
+		text = ET.tostring(e).lower()
+		if ("select" in text and "from" in text):
+			total+=1
+
+	return total
+
+def count_request_header_access(root):
+	global ns_node,ns_subnode,ns_scalar
+	total = 0
+
+	query = './/{0}Expr_FuncCall/{1}name//{1}parts'.format(ns_node, ns_subnode)
+	total += count_param_occurrence(root.findall(query), ["getallheaders","http_get_request_headers"])
+
+	query = './/{0}Expr_ArrayDimFetch'.format(ns_node)
+	for e in root.findall(query):
+		if (count_param_occurrence(e.findall('.//{0}Expr_Variable/{1}name'.format(ns_node, ns_subnode)), "_SERVER")>0):
+			inner_query = './/{0}Scalar_String'.format(ns_node)
+			total+=count_param_occurrence(e.findall(inner_query),"HTTP_")
+
+	return total
+
+
 def count_request_param_access(root):
 	global ns_node,ns_subnode,ns_scalar
 	total = 0
 
-	params = ["_POST","_GET","_REQUEST"]
+	params = ["_POST","_GET","_REQUEST","_PUT"]
 
 	query = './/{0}Expr_Variable/{1}name'.format(ns_node, ns_subnode)
 	total += count_param_occurrence(root.findall(query), params)
 
 	return total
+
+def count_context_switch(root):
+	global ns_node,ns_subnode,ns_scalar
+	total = 0
+
+	query = './/{0}Stmt_InlineHTML'.format(ns_node)
+	total += len(root.findall(query))
+
+	return total	
 
 def count_session_write(root):
 	global ns_node,ns_subnode,ns_scalar
@@ -86,7 +135,7 @@ def parse_php(input_file):
 	try:
 		doc = ET.ElementTree(file=input_file)
 		return doc
-	except ET.ParseError:
+	except:
 		print "PARSE ERROR : "+input_file
 		return None
 	

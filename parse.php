@@ -43,7 +43,7 @@ $traverser->addVisitor(new PhpParser\NodeVisitor\NameResolver); // we will need 
 
 // iterate over all .php files in the directory
 $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($IN_DIR));
-$files = new RegexIterator($files, '/php$/');
+$files = new RegexIterator($files, '/php|inc|module|install$/');
 
 $serializer = new PhpParser\Serializer\XML;
 

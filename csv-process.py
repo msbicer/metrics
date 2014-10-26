@@ -40,7 +40,9 @@ for idx, row in enumerate(reader):
         class_idx = len(row)-1
         print str(i)+" "+str(len(row))+" "+file_path+" "+row[class_idx]+" "+str(found)+" "+str(file_path.__len__())
         i=i+1
-        if found:
+        if (idx==0):
+            row[class_idx] = 'Defected'
+        elif found:
             row[class_idx] = 'yes'
         else:
             row[class_idx] = 'no'
