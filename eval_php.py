@@ -15,14 +15,30 @@ def count_db_query(root):
 	global ns_node,ns_subnode,ns_scalar
 	total = 0
 
-	# query = './/{0}Expr_FuncCall/{1}name//{1}parts'.format(ns_node, ns_subnode)
-	# total += count_param_occurrence(root.findall(query),"PMA_DBI_try_query")
-
 	query = './/{0}string'.format(ns_scalar);
 	for e in root.findall(query):
 		text = ET.tostring(e).lower()
 		if ("select" in text and "from" in text):
 			total+=1
+	if total>0:
+		return total
+
+	query = './/{0}Expr_MethodCall'.format(ns_node)
+	for e in root.findall(query):
+		child = e.find('{0}name/{1}string'.format(ns_subnode,ns_scalar))
+		if child is None:
+			continue
+
+		name = child.text.strip()
+		# print ET.tostring(e).strip()+" "+name
+		# print name
+		if "from" == name:
+			for s in e.findall('.//{0}Expr_MethodCall/{1}name/{2}string'.format(ns_node,ns_subnode,ns_scalar)):
+				subname = s.text.strip()
+				# print "sub : "+subname
+				if ("select" == subname):
+					total+=1
+					break
 
 	return total
 
@@ -152,9 +168,9 @@ if __name__ == '__main__':
 
 	#num_write_session = count_session_write(doc)
 	#num_read_session = count_session_read(doc)
-	num_params = count_request_param_access(doc)
+	# num_params = count_request_param_access(doc)
 
 	#print "write : "+str(num_write_session)
 	#print "read : "+str(num_read_session)
-	print "params : "+str(num_params)
+	print "params : "+str(count_db_query(doc))
 	

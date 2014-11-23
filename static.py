@@ -43,7 +43,7 @@ for idx, row in enumerate(reader):
 			path = row[1]
 			parsed_path = parsed_dir+path[path.index("/", len(pwd)+1)+1:]
 			print path+" "+parsed_path
-			if (path.endswith(".php")):
+			if (path.endswith(".php") or path.endswith(".module") or path.endswith(".inc") or path.endswith(".install")):
 				root = eval_php.parse_php(parsed_path)
 				if (root is not None):
 					reads = eval_php.count_session_read(root)
