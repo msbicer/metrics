@@ -3,7 +3,7 @@ metrics
 
 metric extraction scripts
 
-Simple usage:
+Sample usage:
 
 `python ./metrics/diff.py <project_name> <from_commit> <to_commit> git/`
 
