@@ -2,6 +2,12 @@
 import sys
 import xml.etree.ElementTree as ET
 
+def get_html(root):
+	query = './/{0}Stmt_InlineHTML/{1}value/{2}string'.format(ns_node, ns_subnode, ns_scalar)
+	return ''.join(e.text for e in root.findall(query))
+	# for e in root.findall(query):
+	# 	text = ET.tostring(e)
+
 def count_cookie_access(root):
 	global ns_node,ns_subnode,ns_scalar
 	total = 0

@@ -4,6 +4,7 @@ import csv
 import sys
 import common
 import eval_php
+import html
 
 project_name = sys.argv[1]
 parsed_dir = sys.argv[2]
@@ -33,6 +34,8 @@ for idx, row in enumerate(reader):
 
 		row.append('DB_Query')
 		row.append('DB_Query_Binary')
+
+		row.extend(html.header())
 		
 		row.append('Defected')
 		row.pop(0)
@@ -66,6 +69,8 @@ for idx, row in enumerate(reader):
 				db_query = eval_php.count_db_query(root)
 				row.append(db_query)
 				row.append(True if db_query>0 else False)
+
+				row.extend(html.parse(root).data())
 			else:
 				row.append(False)
 				row.append(0)
@@ -80,6 +85,8 @@ for idx, row in enumerate(reader):
 
 				row.append(0)
 				row.append(False)
+
+				row.extend(html.empty())
 
 			row.append('no')
 			row.pop(0)
