@@ -7,6 +7,20 @@ from HTMLParser import HTMLParser
 class MyHTMLParser(HTMLParser):
     total_tags = 0
     tags = Set()
+
+    forms = 0
+    inputs = 0
+    anchors = 0
+    frames = 0
+
+    scripts = 0
+    external_scripts = 0
+    in_page_scripts = 0
+
+    css_included = 0
+    style_tags = 0
+    inline_css = 0
+    inline_css_lines = 0
     
     total_attrs = 0
     avg_attrs = 0
@@ -28,17 +42,49 @@ class MyHTMLParser(HTMLParser):
             self.max_depth = self.depth
 
         self.tags.add(tag)
-        self.total_tags+=1
+        self.total_tags += 1
 
-        self.total_attrs+=len(attrs)
+        self.total_attrs += len(attrs)
+
+        if tag == "input":
+            self.inputs += 1
+        elif tag == "form":
+            self.forms += 1
+        elif tag == "iframe" or tag == "frame":
+            self.frames += 1
+        elif tag == "a":
+            self.anchors += 1
+        elif tag == "script":
+            self.scripts += 1
+        elif tag == "style":
+            self.style_tags += 1
+
+
         for a in attrs:
-            self.attrs.add(a[0])
+            # print "attr : ",a
+            name = a[0].lower()
+            if name == "<" or name == ">":
+                pass
+                
+            value = "" if a[1] == None else a[1].lower()
+            self.attrs.add(name)
+            if name == "style" and len(value)>0:
+                self.inline_css += 1
+                self.inline_css_lines += len(value.split(";"))
+            elif tag == "link" and name == "rel" and value == "stylesheet":
+                self.css_included += 1
+            elif tag == "script":
+                if name == "src":
+                    self.external_scripts += 1
+                else:
+                    self.in_page_scripts += 1 
+
 
     def handle_starttag(self, tag, attrs):
-        self.tag_opened(tag, attrs)
+        self.tag_opened(tag.lower(), attrs)
         #print "Encountered a start tag:", tag, attrs
     def handle_startendtag(self, tag, attrs):
-        self.tag_opened(tag, attrs)
+        self.tag_opened(tag.lower(), attrs)
         # self.depth=max(0,self.depth-1)
         self.depth-=1
         #print "Encountered a startend tag:", tag, attrs
@@ -57,7 +103,9 @@ class MyHTMLParser(HTMLParser):
         self.avg_depth = 0 if self.total_depth==0 else self.total_tags / float(self.total_depth)
     def data(self):
         return (self.total_tags,len(self.tags),self.total_attrs,len(self.attrs)
-            ,self.avg_attrs,self.max_depth,self.total_depth,self.avg_depth,self.total_comment,self.total_text)
+            ,self.avg_attrs,self.max_depth,self.total_depth,self.avg_depth,self.total_comment,self.total_text
+            ,self.forms, self.inputs, self.anchors, self.frames, self.scripts, self.in_page_scripts, self.external_scripts
+            ,self.css_included, self.style_tags, self.inline_css, self.inline_css_lines)
 
 
 # def read_file(file_path):
@@ -68,7 +116,9 @@ class MyHTMLParser(HTMLParser):
 
 def header():
     return ('total_tags','unique_tags','total_attrs','unique_attrs'
-            ,'avg_attrs','max_depth','total_depth','avg_depth','total_comment','total_text')
+            ,'avg_attrs','max_depth','total_depth','avg_depth','total_comment','total_text'
+            ,'forms','inputs','anchors','frames','scripts','in_page_scripts','external_scripts'
+            ,'css_included','style_tags','inline_css','inline_css_lines')
 
 def empty():
     return [0] * len(header())
@@ -79,7 +129,7 @@ def parse(root):
     parser.feed(content)
     parser.finalize()
 
-    return parser
+    return content,parser
 
 # parser = MyHTMLParser()
 

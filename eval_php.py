@@ -1,10 +1,11 @@
 #from xml.dom import minidom
 import sys
+import traceback
 import xml.etree.ElementTree as ET
 
 def get_html(root):
 	query = './/{0}Stmt_InlineHTML/{1}value/{2}string'.format(ns_node, ns_subnode, ns_scalar)
-	return ''.join(e.text for e in root.findall(query))
+	return '\n'.join(e.text for e in root.findall(query))
 	# for e in root.findall(query):
 	# 	text = ET.tostring(e)
 
@@ -145,11 +146,11 @@ def count_param_occurrence(haystack, needle):
 		text = ET.tostring(e) 
 		if (isinstance(needle, list)):
 			if (any(x in text for x in needle)):
-				print text
+				# print text
 				total+=1
 		else:
 			if ((text and needle in text)):
-				print text
+				# print text
 				total+=1
 	return total
 
@@ -157,8 +158,9 @@ def parse_php(input_file):
 	try:
 		doc = ET.ElementTree(file=input_file)
 		return doc
-	except:
+	except Exception, err:
 		print "PARSE ERROR : "+input_file
+		print traceback.format_exc()
 		return None
 	
 

@@ -1,5 +1,7 @@
 import fnmatch
 import os
+import subprocess
+import json
 import csv
 import sys
 import common
@@ -11,6 +13,15 @@ parsed_dir = sys.argv[2]
 
 sys.setrecursionlimit(10000)
 
+# print "Loading complexity data..."
+# stats_file = project_name+'-metrics.json'
+# with open(stats_file) as stats_file:    
+#     data = json.load(stats_file)
+# complexity = {}
+# for row in data:
+# 	complexity[row['filename']] = row
+# print "Data loaded"
+
 ifile  = open(project_name+'-understand.csv', "rb")
 reader = csv.reader(ifile)
 ofile  = open(project_name+'-static.csv', "wb")
@@ -19,8 +30,25 @@ writer = csv.writer(ofile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNU
 pwd = os.getcwd()
 print pwd
 
+ignore = []
+html_loc = 0
 for idx, row in enumerate(reader):
 	if idx==0:
+		for i,x in enumerate(row):
+			if x.endswith('_Html') or x.endswith('_Php') or x.endswith('_Javascript'):
+				ignore.append(i)
+
+		# row.append('bugs')
+		# row.append('difficulty')
+		# row.append('effort')
+		# row.append('length')
+		# row.append('MI')
+		# row.append('MIwC')
+		# row.append('operators')
+		# row.append('time')
+		# row.append('vocabulary')
+		# row.append('volume')
+
 		row.append('Has_Session')
 		row.append('Session_Reads')
 		row.append('Session_Writes')
@@ -38,6 +66,9 @@ for idx, row in enumerate(reader):
 		row.extend(html.header())
 		
 		row.append('Defected')
+
+		for x in reversed(ignore):
+			row.pop(x)
 		row.pop(0)
 		writer.writerow(row)
 	else:
@@ -47,6 +78,18 @@ for idx, row in enumerate(reader):
 			parsed_path = parsed_dir+path[path.index("/", len(pwd)+1)+1:]
 			print path+" "+parsed_path
 			if (path.endswith(".php") or path.endswith(".module") or path.endswith(".inc") or path.endswith(".install")):
+				# phpmetrics = complexity[path]
+				# row.append(phpmetrics['bugs'])
+				# row.append(phpmetrics['difficulty'])
+				# row.append(phpmetrics['effort'])
+				# row.append(phpmetrics['length'])
+				# row.append(phpmetrics['maintainabilityIndex'])
+				# row.append(phpmetrics['maintainabilityIndexWithoutComment'])
+				# row.append(phpmetrics['operators'])
+				# row.append(phpmetrics['time'])
+				# row.append(phpmetrics['vocabulary'])
+				# row.append(phpmetrics['volume'])
+
 				root = eval_php.parse_php(parsed_path)
 				if (root is not None):
 					reads = eval_php.count_session_read(root)
@@ -70,7 +113,10 @@ for idx, row in enumerate(reader):
 				row.append(db_query)
 				row.append(True if db_query>0 else False)
 
-				row.extend(html.parse(root).data())
+				content,parser = html.parse(root)
+
+				html_loc = html_loc + len(content.splitlines())
+				row.extend(parser.data())
 			else:
 				row.append(False)
 				row.append(0)
@@ -89,8 +135,12 @@ for idx, row in enumerate(reader):
 				row.extend(html.empty())
 
 			row.append('no')
+			for x in reversed(ignore):
+				row.pop(x)
 			row.pop(0)
 			writer.writerow(row)
+
+print "HTML LOC "+str(html_loc)
 
 ifile.close()
 ofile.close()
