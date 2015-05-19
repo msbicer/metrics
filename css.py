@@ -23,6 +23,8 @@ def build_files_set(rootdir):
 
 def removeComments(string):
     string = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,string)
+    #string = re.sub('\s+',r'',string)
+    #string = re.sub('([:,])(\.\d+)',r'\g<1>0\g<2>',string)
     return string
 
 def read_css(file_path):
@@ -79,7 +81,15 @@ def get_rules(data):
 
                 # replaced = re.sub('\s{2,}',' ',text)
                 replaced = re.sub('([:;,{}])\s+',r'\1',text)
-                # pdb.set_trace()
+
+                # content = text[text.rfind("{")+1:text.find("}")]
+                # lines = content.split(";")
+                # lines.sort()
+                # lines = filter(None, lines)
+                # modified = text[:text.rfind("{")+1] + ";".join(lines) + text[text.find("}"):]
+                # rules.append(modified)
+
+                # print "\n"+text+"\n\n\n"+modified+" ==> "+content+"  ==> "+str(lines)+"\n"
                 rules.append(replaced)
             last_block = idx
         elif c == ";":
@@ -100,7 +110,7 @@ def get_metrics(rule):
     if ("selectors" not in metrics):
         metrics["selectors"] = 0
 
-    remove = ["imports","comments","commentsLength","duplicatedSelectors","emptyRules","base64Length"]
+    remove = ["imports","rules","comments","commentsLength","duplicatedSelectors","emptyRules","base64Length","redundantBodySelectors","redundantChildNodesSelectors"]
     for key in remove:
         metrics.pop(key, None)
 
@@ -136,9 +146,11 @@ def compare_files(css_file1, css_file2):
     compare_rules = get_rules(data2)
     table = Set()
     for r in compare_rules:
-        h = hashlib.sha256(removeComments(r)).hexdigest()
+        text = removeComments(r)
+        h = hashlib.sha256(text).hexdigest()
+        print text + " ==> "+h
         table.add(h)
-
+    print '\n\n\n'
     for rule in rules:
         #print rule
         try:
@@ -151,8 +163,10 @@ def compare_files(css_file1, css_file2):
 
             # header.append("Hash")
 
-            h = hashlib.sha256(removeComments(rule)).hexdigest()
+            text = removeComments(rule)
+            h = hashlib.sha256(text).hexdigest()
             # row.append(h)
+            print text + " ======> "+h
 
             for k in metrics:
                 if (row_index == 0):
@@ -184,7 +198,7 @@ project_name = sys.argv[1]
 file1 = sys.argv[2]
 file2 = sys.argv[3]
 
-ofile  = open(project_name+"-css.csv", "wb")
+ofile  = open(project_name+".csv", "wb")
 writer = csv.writer(ofile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
 #pdb.set_trace()
