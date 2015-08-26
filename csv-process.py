@@ -4,12 +4,16 @@ import common
 
 project_name = sys.argv[1]
 metric_type = sys.argv[2]
+if len(sys.argv) > 3:
+    parsed_dir = sys.argv[3]
+else:
+    parsed_dir = None
 
 def check_map(name):
     name = name.replace('\\','/')
     global defected
     for key in defected:
-        #print 'check_map ',key,' ==> ',name
+        # print 'check_map ',key,' ==> ',name
         if key in name:
             
             return True

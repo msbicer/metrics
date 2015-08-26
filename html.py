@@ -1,39 +1,71 @@
 import eval_php
 import os
+import traceback
 from sets import Set
 from HTMLParser import HTMLParser
 
 # create a subclass and override the handler methods
 class MyHTMLParser(HTMLParser):
-    total_tags = 0
-    tags = Set()
+    # total_tags = 0
+    # tags = Set()
 
-    forms = 0
-    inputs = 0
-    anchors = 0
-    frames = 0
+    # forms = 0
+    # inputs = 0
+    # anchors = 0
+    # frames = 0
 
-    scripts = 0
-    external_scripts = 0
-    in_page_scripts = 0
+    # scripts = 0
+    # external_scripts = 0
+    # in_page_scripts = 0
 
-    css_included = 0
-    style_tags = 0
-    inline_css = 0
-    inline_css_lines = 0
+    # css_included = 0
+    # style_tags = 0
+    # inline_css = 0
+    # inline_css_lines = 0
     
-    total_attrs = 0
-    avg_attrs = 0
-    attrs = Set()
+    # total_attrs = 0
+    # avg_attrs = 0
+    # attrs = Set()
     
-    max_depth = 0
-    total_depth = 0
-    avg_depth = 0
+    # max_depth = 0
+    # total_depth = 0
+    # avg_depth = 0
 
-    total_comment = 0
-    total_text = 0
+    # total_comment = 0
+    # total_text = 0
 
-    depth = 0
+    # depth = 0
+
+    def clear(self):
+        self.total_tags = 0
+        self.tags = Set()
+
+        self.forms = 0
+        self.inputs = 0
+        self.anchors = 0
+        self.frames = 0
+
+        self.scripts = 0
+        self.external_scripts = 0
+        self.in_page_scripts = 0
+
+        self.css_included = 0
+        self.style_tags = 0
+        self.inline_css = 0
+        self.inline_css_lines = 0
+        
+        self.total_attrs = 0
+        self.avg_attrs = 0
+        self.attrs = Set()
+        
+        self.max_depth = 0
+        self.total_depth = 0
+        self.avg_depth = 0
+
+        self.total_comment = 0
+        self.total_text = 0
+
+        self.depth = 0
 
     def tag_opened(self, tag, attrs):
         self.depth+=1
@@ -42,6 +74,7 @@ class MyHTMLParser(HTMLParser):
             self.max_depth = self.depth
 
         self.tags.add(tag)
+        # print "tags : "+str(len(self.tags))
         self.total_tags += 1
 
         self.total_attrs += len(attrs)
@@ -126,6 +159,7 @@ def empty():
 def parse(root):
     content = eval_php.get_html(root)
     parser = MyHTMLParser()
+    parser.clear()
     parser.feed(content)
     parser.finalize()
 
@@ -147,57 +181,3 @@ def parse(root):
 
 # print header()
 # print parser.data()
-
-def test():
-    php_from = []
-    php_to = []
-    in_string = False
-    in_php = False
-    in_comment = False
-    string_begin_ch = None
-    escaping = False
-    idx = 0
-    while idx < len(content):
-        ch = content[idx]
-        if ch == "\\":
-            escaping = not escaping
-        if escaping:
-            idx+=1
-            pass
-        if ch == "\"" or ch == "'" and in_comment == False:
-            if in_string == False:
-                in_string = True
-                string_begin_ch = ch
-            elif in_string == True and string_begin_ch == ch:
-                in_string = False
-                string_begin_ch = None
-        elif not in_php or in_string == False:
-            if ch == "/":
-                if content[idx+1] == "/":
-                    ln = content.find("\n",idx)
-                    if ln != -1:
-                        content = content[:idx] + content[ln+1:]
-                elif content[idx+1] == "*":
-                    in_comment = True
-                    idx+=1
-                elif content[idx-1] == "*" and in_comment == True:
-                    in_comment = False
-            elif not in_comment:
-                if ch == "<" or ch == "?":
-                    print str(idx)+" "+str(in_string)+" "+content[idx-5:idx+5]+"\n"
-
-                if ch == "<" and content[idx+1] == "?":
-                    if content[idx+2].isspace() or content[idx+2:idx+5] == "php":
-                        in_php = True
-                        php_from.append(idx)
-                elif ch == "?" and content[idx+1] == ">" and in_php:
-                    in_php = False
-                    php_to.append(idx+1)
-        idx+=1
-
-    i = len(php_from)-1
-    while i >= 0:
-        print str(i)+" "+str(len(content))+" "+str(php_from[i])+" "+str(php_to[i])
-        content = content[0:php_from[i]] + content[php_to[i]:]
-        i-=1
-    print content

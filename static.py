@@ -31,8 +31,9 @@ pwd = os.getcwd()
 print pwd
 
 ignore = []
-html_loc = 0
+
 for idx, row in enumerate(reader):
+	html_loc = 0
 	if idx==0:
 		for i,x in enumerate(row):
 			if x.endswith('_Html') or x.endswith('_Php') or x.endswith('_Javascript'):
@@ -63,6 +64,8 @@ for idx, row in enumerate(reader):
 		row.append('DB_Query')
 		row.append('DB_Query_Binary')
 
+		row.append('Has_HTML')
+
 		row.extend(html.header())
 		
 		row.append('Defected')
@@ -72,6 +75,8 @@ for idx, row in enumerate(reader):
 		row.pop(0)
 		writer.writerow(row)
 	else:
+		skip = False
+
 		if row[0] == 'File' and common.check_path_valid(row[1]):
 			
 			path = row[1]
@@ -96,6 +101,9 @@ for idx, row in enumerate(reader):
 					writes = eval_php.count_session_write(root)
 					params = eval_php.count_request_param_access(root)
 				else:
+					reads = 0
+					writes = 0
+					params = 0
 					continue;
 
 				row.append(True if reads>0 or writes>0 else False)
@@ -115,9 +123,18 @@ for idx, row in enumerate(reader):
 
 				content,parser = html.parse(root)
 
+				# print "content : "+content
+
+				if len(content)==0:
+					row.append(False)
+					#skip = True
+				else:
+					row.append(True)
+
 				html_loc = html_loc + len(content.splitlines())
 				row.extend(parser.data())
 			else:
+				#skip = True
 				row.append(False)
 				row.append(0)
 				row.append(0)
@@ -130,6 +147,7 @@ for idx, row in enumerate(reader):
 				row.append(0)
 
 				row.append(0)
+				row.append(False)
 				row.append(False)
 
 				row.extend(html.empty())
@@ -138,9 +156,10 @@ for idx, row in enumerate(reader):
 			for x in reversed(ignore):
 				row.pop(x)
 			row.pop(0)
-			writer.writerow(row)
-
-print "HTML LOC "+str(html_loc)
+			if skip == False:
+				# print '[%s]' % ', '.join(map(str, row))
+				writer.writerow(row)
+				print "HTML LOC "+str(html_loc)
 
 ifile.close()
 ofile.close()
