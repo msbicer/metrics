@@ -15,16 +15,20 @@ def check_map(name):
     for key in defected:
         # print 'check_map ',key,' ==> ',name
         if key in name:
-            
-            return True
-    return False
+            return defected[key]
+    return 0
 
 defected = {}
 
 with open(project_name+"-modified.txt") as f:
     for line in f:
-       #print line.strip()
-       defected[line.strip()] = 1
+        #print line.strip()
+        #defected[line.strip()] = 1
+        filename = line.strip()
+        if filename in defected:
+            defected[filename] += 1
+        else:
+            defected[filename] = 1
 
 #print d
 
@@ -45,10 +49,13 @@ for idx, row in enumerate(reader):
         print str(i)+" "+str(len(row))+" "+file_path+" "+row[class_idx]+" "+str(found)+" "+str(file_path.__len__())
         i=i+1
         if (idx==0):
+            row[class_idx-1] = 'Defect_Count'
             row[class_idx] = 'Defected'
-        elif found:
+        elif found>0:
+            row[class_idx-1] = found/float(row[14])
             row[class_idx] = 'yes'
         else:
+            row[class_idx-1] = 0
             row[class_idx] = 'no'
         writer.writerow(row)
 ifile.close()

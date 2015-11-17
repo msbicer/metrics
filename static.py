@@ -68,6 +68,7 @@ for idx, row in enumerate(reader):
 
 		row.extend(html.header())
 		
+		row.append('Defect_Count')
 		row.append('Defected')
 
 		for x in reversed(ignore):
@@ -152,6 +153,7 @@ for idx, row in enumerate(reader):
 
 				row.extend(html.empty())
 
+			row.append(0)
 			row.append('no')
 			for x in reversed(ignore):
 				row.pop(x)

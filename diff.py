@@ -65,7 +65,10 @@ def show(commit):
 				#reset skip flag
 				if skip is False and filename is not None:
 					if is_bugfix(commit, comment_string):
-						changed_files[filename] = 1
+						if filename in changed_files:
+							changed_files[filename] += 1
+						else:
+							changed_files[filename] = 1
 						print comment_string+" "+filename+" "+commit
 						#print line
 				skip = False
@@ -142,5 +145,7 @@ log(from_commit, to_commit)
 modified_file  = open(project_name+'-modified.txt', "wb")
 for filename in changed_files:
 	if len(filename.strip())>0:
-		modified_file.write(filename+'\n')
+		times = changed_files[filename]
+		for i in range(1,times):
+			modified_file.write(filename+'\n')
 modified_file.close()
